@@ -1,9 +1,18 @@
 const socket = io();
 
-setInterval(() => {
-  socket.emit("from_client", "from client to server : hello server");
-}, 1000);
+let btn = document.getElementById("btn");
+let inputMsg = document.getElementById("inputMsg");
+let msgList = document.getElementById("msglist");
 
-socket.on("from_server", (arg) => {
-  console.log(arg);
+btn.addEventListener("click", () => {
+  socket.emit("msg_send", {
+    msg: inputMsg.value,
+  });
+});
+
+socket.on("msg_receive", (data) => {
+  console.log("prince", data);
+  let listMsg = document.createElement("li");
+  listMsg.innerText = data.msg;
+  msgList.appendChild(listMsg);
 });
