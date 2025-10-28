@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1>Chat box</h1>
+    <input id="startChat" type="hidden" data-roomId='<%= id %>'></input>
+    <input type="text" id="username" placeholder="user id...">
+    <input type="text" id="inputMsg" placeholder="message...">
+    <button id="btn">Send</button>
+
+    <ul id="msglist">
+        <% for(let i=0; i<chats.length; i++) {%>
+            <li>
+                <%= chats[i].userId %> :
+                    <%= chats[i].content %>
+            </li>
+            <% } %>
+    </ul>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        let startChat = document.getElementById("startChat");
+        let btn = document.getElementById("btn");
+        let inputMsg = document.getElementById("inputMsg");
+        let msgList = document.getElementById("msglist");
+        let username = document.getElementById("username");
+
+        socket.emit("join_room", {
+            roomId: startChat.getAttribute("data-roomId"),
+        });
+
+        btn.addEventListener("click", () => {
+            socket.emit("msg_send", {
+                msg: inputMsg.value,
+                username: username.value,
+                roomId: startChat.getAttribute("data-roomId"),
+            });
+        });
+
+        socket.on("msg_receive", (data) => {
+            let listMsg = document.createElement("li");
+            listMsg.innerText = `${data.username}: ${data.msg}`;
+            msgList.appendChild(listMsg);
+        });
+
+    </script>
+</body>
+
+</html>
